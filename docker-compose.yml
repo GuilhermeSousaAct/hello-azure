@@ -1,5 +1,6 @@
 services:
-  app-service:
+  hello-azure-app:
+    container_name: hello-azure-app
     build: .
     ports:
       - "3000:3000"
