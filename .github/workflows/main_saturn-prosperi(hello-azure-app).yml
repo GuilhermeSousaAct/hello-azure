@@ -29,7 +29,7 @@ jobs:
 
       - name: Build and push image from docker-compose
         run: |
-          docker-compose -f docker-compose.yml build
+          docker compose -f docker-compose.yml build
           docker tag app-service saturnoprosperi.azurecr.io/hello-azure-app:${{ github.sha }}
           docker push saturnoprosperi.azurecr.io/hello-azure-app:${{ github.sha }}
 
