@@ -14,24 +14,31 @@ jobs:
     runs-on: 'ubuntu-latest'
 
     steps:
-    - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-    - name: Log in to registry
-      uses: docker/login-action@v2
-      with:
-        registry: saturnoprosperi.azurecr.io
-        username: ${{ secrets.ACR_USERNAME }}
-        password: ${{ secrets.ACR_PASSWORD }}
+      - name: Log in to registry
+        uses: docker/login-action@v2
+        with:
+          registry: saturnoprosperi.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
 
-    - name: Build and push container image to registry
-      uses: docker/build-push-action@v3
-      with:
-        push: true
-        tags: saturnoprosperi.azurecr.io/hello-azure-app:${{ github.sha }}
-        file: ./Dockerfile
+      - name: Build and push image from docker-compose
+        run: |
+          docker-compose -f docker-compose.yml build
+          docker tag app-service saturnoprosperi.azurecr.io/hello-azure-app:${{ github.sha }}
+          docker push saturnoprosperi.azurecr.io/hello-azure-app:${{ github.sha }}
+
+      # - name: Build and push container image to registry
+      #   uses: docker/build-push-action@v3
+      #   with:
+      #     push: true
+      #     tags: saturnoprosperi.azurecr.io/hello-azure-app:${{ github.sha }}
+      #     file: ./Dockerfile
 
   deploy:
     runs-on: ubuntu-latest
@@ -41,11 +48,19 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
-    - name: Deploy to Azure Web App
-      id: deploy-to-webapp
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: 'saturn-prosperi'
-        slot-name: 'hello-azure-app'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_378215ab2cb449179824c77d3f6b0e26 }}
-        images: 'saturnoprosperi.azurecr.io/hello-azure-app:${{ github.sha }}'
+      # - name: Deploy to Azure Web App
+      #   id: deploy-to-webapp
+      #   uses: azure/webapps-deploy@v2
+      #   with:
+      #     app-name: 'saturn-prosperi'
+      #     slot-name: 'hello-azure-app'
+      #     publish-profile: ${{ secrets.AzureAppService_PublishProfile_378215ab2cb449179824c77d3f6b0e26 }}
+      #     images: 'saturnoprosperi.azurecr.io/hello-azure-app:${{ github.sha }}'
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'saturn-prosperi'
+          slot-name: 'hello-azure-app'
+          publish-profile: ${{ secrets.AzureAppService_PublishProfile_378215ab2cb449179824c77d3f6b0e26 }}
+          images: 'saturnoprosperi.azurecr.io/hello-azure-app:${{ github.sha }}'
