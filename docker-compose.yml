@@ -1,6 +1,6 @@
 services:
   hello-azure-app:
-    container_name: hello-azure-app
     build: .
+    image: hello-azure-app:latest
     ports:
       - "3000:3000"
