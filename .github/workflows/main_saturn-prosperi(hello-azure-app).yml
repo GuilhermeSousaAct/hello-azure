@@ -1,45 +1,51 @@
-name: CI/CD Node Docker to Azure
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy container app to Azure Web App - saturn-prosperi(hello-azure-app)
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: 'ubuntu-latest'
 
     steps:
-      - name: Checkou code
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v2
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
 
-      - name: Build Docker Image
-        run: |
-          docker build -t guilhermesousacosta/hello-azure-app:latest .
-          docker build -t guilhermesousacosta/hello-azure-app:${{ github.sha }} .
+    - name: Log in to registry
+      uses: docker/login-action@v2
+      with:
+        registry: https://index.docker.io/v1/
+        username: ${{ secrets.AzureAppService_ContainerUsername_8bafa4937c5e436dba6207babd6ac4ea }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_48b904122b7b423d9e0fe6bf427b8a9d }}
 
-      - name: Docker push
-        run: |
-          docker push guilhermesousacosta/hello-azure-app:latest
-          docker push guilhermesousacosta/hello-azure-app:${{ github.sha }}
+    - name: Build and push container image to registry
+      uses: docker/build-push-action@v3
+      with:
+        push: true
+        tags: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_8bafa4937c5e436dba6207babd6ac4ea }}/hello-azure-app:${{ github.sha }}
+        file: ./Dockerfile
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
+    environment:
+      name: 'hello-azure-app'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
-      - name: Log in to Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: hello-azure-app
-          images: guilhermesousacosta/hello-azure-app:latest
+    - name: Deploy to Azure Web App
+      id: deploy-to-webapp
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'saturn-prosperi'
+        slot-name: 'hello-azure-app'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_378215ab2cb449179824c77d3f6b0e26 }}
+        images: 'index.docker.io/${{ secrets.AzureAppService_ContainerUsername_8bafa4937c5e436dba6207babd6ac4ea }}/hello-azure-app:${{ github.sha }}'
