@@ -26,6 +26,13 @@ jobs:
         username: ${{ secrets.AzureAppService_ContainerUsername_286b1e2751b340a886493b1364c527e0 }}
         password: ${{ secrets.AzureAppService_ContainerPassword_2d964747d55e4846b7b269a991a4f083 }}
 
+    - name: Build and push container image latest to registry
+      uses: docker/build-push-action@v3
+      with:
+        push: true
+        tags: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_286b1e2751b340a886493b1364c527e0 }}/node:latest
+        file: ./Dockerfile
+
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
