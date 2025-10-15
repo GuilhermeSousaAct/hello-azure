@@ -20,8 +20,8 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t guilhermesousacosta/hello-azure-app:latest
-          docker build -t guilhermesousacosta/hello-azure-app:${{ github.sha }}
+          docker build -t guilhermesousacosta/hello-azure-app:latest .
+          docker build -t guilhermesousacosta/hello-azure-app:${{ github.sha }} .
 
       - name: Docker push
         run: |
