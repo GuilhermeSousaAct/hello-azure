@@ -22,15 +22,15 @@ jobs:
     - name: Log in to registry
       uses: docker/login-action@v2
       with:
-        registry: https://index.docker.io/v1/
-        username: ${{ secrets.AzureAppService_ContainerUsername_8bafa4937c5e436dba6207babd6ac4ea }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_48b904122b7b423d9e0fe6bf427b8a9d }}
+        registry: saturnoprosperi.azurecr.io
+        username: ${{ secrets.ACR_USERNAME }}
+        password: ${{ secrets.ACR_PASSWORD }}
 
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_8bafa4937c5e436dba6207babd6ac4ea }}/hello-azure-app:${{ github.sha }}
+        tags: saturnoprosperi.azurecr.io/hello-azure-app:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
@@ -48,4 +48,4 @@ jobs:
         app-name: 'saturn-prosperi'
         slot-name: 'hello-azure-app'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_378215ab2cb449179824c77d3f6b0e26 }}
-        images: 'index.docker.io/${{ secrets.AzureAppService_ContainerUsername_8bafa4937c5e436dba6207babd6ac4ea }}/hello-azure-app:${{ github.sha }}'
+        images: 'saturnoprosperi.azurecr.io/hello-azure-app:${{ github.sha }}'
