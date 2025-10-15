@@ -22,16 +22,14 @@ jobs:
     - name: Log in to registry
       uses: docker/login-action@v2
       with:
-        registry: https://saturnoprosperi.azurecr.io/
+        registry: saturnoprosperi.azurecr.io
         username: ${{ secrets.AzureAppService_ContainerUsername_6ecd7a85a06b49d1af770e5598874abf }}
         password: ${{ secrets.AzureAppService_ContainerPassword_543f91c100cb487ea6667015bd7fc660 }}
 
-    - name: Build and push container image to registry
-      uses: docker/build-push-action@v3
-      with:
-        push: true
-        tags: saturnoprosperi.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_6ecd7a85a06b49d1af770e5598874abf }}/node:${{ github.sha }}
-        file: ./Dockerfile
+    - name: Build and push iamge
+      run: |
+        docker-compose build
+        docker-compose push
 
   deploy:
     runs-on: ubuntu-latest
